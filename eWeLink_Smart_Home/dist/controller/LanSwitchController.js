@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -57,12 +57,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var lanDeviceApi_1 = require("../apis/lanDeviceApi");
 var restApi_1 = require("../apis/restApi");
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
-var LanSwitchController = /** @class */ (function (_super) {
+var LanSwitchController = (function (_super) {
     __extends(LanSwitchController, _super);
     function LanSwitchController(props) {
         var _this = _super.call(this, props) || this;
         var deviceId = props.deviceId;
-        _this.entityId = "switch." + deviceId;
+        _this.entityId = "switch.".concat(deviceId);
         return _this;
     }
     return LanSwitchController;
@@ -73,8 +73,8 @@ LanSwitchController.prototype.setSwitch = function (status) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.setSwitch({
+                    if (!(this.devicekey && this.selfApikey)) return [3, 2];
+                    return [4, (0, lanDeviceApi_1.setSwitch)({
                             ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
@@ -89,10 +89,10 @@ LanSwitchController.prototype.setSwitch = function (status) {
                     if ((res === null || res === void 0 ? void 0 : res.data) && res.data.error === 0) {
                         this.updateState(status);
                         this.params.switch = status;
-                        return [2 /*return*/, 0];
+                        return [2, 0];
                     }
                     _a.label = 2;
-                case 2: return [2 /*return*/, -1];
+                case 2: return [2, -1];
             }
         });
     });
@@ -104,13 +104,13 @@ LanSwitchController.prototype.updateState = function (status) {
             switch (_a.label) {
                 case 0:
                     if (this.disabled) {
-                        return [2 /*return*/];
+                        return [2];
                     }
                     state = status;
                     if (!this.online) {
                         state = 'unavailable';
                     }
-                    return [4 /*yield*/, restApi_1.updateStates(this.entityId, {
+                    return [4, (0, restApi_1.updateStates)(this.entityId, {
                             entity_id: this.entityId,
                             state: state,
                             attributes: {
@@ -122,7 +122,7 @@ LanSwitchController.prototype.updateState = function (status) {
                         })];
                 case 1:
                     res = _a.sent();
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });

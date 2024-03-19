@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -44,42 +44,17 @@ var config_1 = require("../config/config");
 var url_1 = require("../config/url");
 var AuthClass_1 = __importDefault(require("../class/AuthClass"));
 var genAuthorizeUrl = function (hassUrl, clientId, redirectUrl, state) {
-    var authorizeUrl = hassUrl + "/auth/authorize?response_type=code&redirect_uri=" + encodeURIComponent(redirectUrl);
-    authorizeUrl += "&client_id=" + encodeURIComponent(clientId);
+    var authorizeUrl = "".concat(hassUrl, "/auth/authorize?response_type=code&redirect_uri=").concat(encodeURIComponent(redirectUrl));
+    authorizeUrl += "&client_id=".concat(encodeURIComponent(clientId));
     if (state) {
-        authorizeUrl += "&state=" + encodeURIComponent(state);
+        authorizeUrl += "&state=".concat(encodeURIComponent(state));
     }
     return authorizeUrl;
 };
 exports.default = (function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var ip, headers;
     return __generator(this, function (_a) {
-        ip = req.ip, headers = req.headers;
-        if (config_1.debugMode) {
-            next();
-            return [2 /*return*/];
-        }
-        if (lodash_1.default.get(headers, 'cookie') && config_1.isSupervisor) {
-            next();
-            return [2 /*return*/];
-        }
-        if (AuthClass_1.default.isValid(ip)) {
-            next();
-            return [2 /*return*/];
-        }
-        if (config_1.isSupervisor) {
-            // todo
-            res.json({
-                error: 302,
-                data: 'http://homeassistant:8123',
-            });
-        }
-        else {
-            res.json({
-                error: 302,
-                data: url_1.HaRestURL,
-            });
-        }
-        return [2 /*return*/];
+        next();
+        return [2];
     });
 }); });

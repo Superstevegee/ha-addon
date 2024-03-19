@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -60,12 +60,12 @@ var dataUtil_1 = require("../utils/dataUtil");
 var lanDeviceApi_1 = require("../apis/lanDeviceApi");
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
 var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
-var LanPowerDetectionSwitchController = /** @class */ (function (_super) {
+var LanPowerDetectionSwitchController = (function (_super) {
     __extends(LanPowerDetectionSwitchController, _super);
     function LanPowerDetectionSwitchController(params) {
         var _this = _super.call(this, params) || this;
-        _this.entityId = "switch." + params.deviceId;
-        _this.rate = +dataUtil_1.getDataSync('rate.json', [_this.deviceId]) || 0;
+        _this.entityId = "switch.".concat(params.deviceId);
+        _this.rate = +(0, dataUtil_1.getDataSync)('rate.json', [_this.deviceId]) || 0;
         return _this;
     }
     return LanPowerDetectionSwitchController;
@@ -76,8 +76,8 @@ LanPowerDetectionSwitchController.prototype.setSwitch = function (status) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.setSwitch({
+                    if (!(this.devicekey && this.selfApikey)) return [3, 2];
+                    return [4, (0, lanDeviceApi_1.setSwitch)({
                             ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
@@ -93,20 +93,17 @@ LanPowerDetectionSwitchController.prototype.setSwitch = function (status) {
                         this.updateState({
                             status: status,
                         });
-                        this.params = mergeDeviceParams_1.default(this.params, {
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, {
                             switch: status,
                         });
-                        return [2 /*return*/, 0];
+                        return [2, 0];
                     }
                     _a.label = 2;
-                case 2: return [2 /*return*/, -1];
+                case 2: return [2, -1];
             }
         });
     });
 };
-/**
- * @description 更新状态到HA
- */
 LanPowerDetectionSwitchController.prototype.updateState = function (params) {
     return __awaiter(this, void 0, void 0, function () {
         var power, current, voltage, status, state, attributes, res;
@@ -114,7 +111,7 @@ LanPowerDetectionSwitchController.prototype.updateState = function (params) {
             switch (_a.label) {
                 case 0:
                     if (this.disabled || lodash_1.default.isEmpty(params)) {
-                        return [2 /*return*/];
+                        return [2];
                     }
                     power = params.power, current = params.current, voltage = params.voltage, status = params.status;
                     state = status;
@@ -125,18 +122,18 @@ LanPowerDetectionSwitchController.prototype.updateState = function (params) {
                         restored: false,
                         supported_features: 0,
                         friendly_name: this.deviceName,
-                        power: (power || lodash_1.default.get(this, ['params', 'power'], 0)) + " W",
-                        current: (current || lodash_1.default.get(this, ['params', 'current'], 0)) + " A",
-                        voltage: (voltage || lodash_1.default.get(this, ['params', 'voltage'], 0)) + " V",
+                        power: "".concat(power || lodash_1.default.get(this, ['params', 'power'], 0), " W"),
+                        current: "".concat(current || lodash_1.default.get(this, ['params', 'current'], 0), " A"),
+                        voltage: "".concat(voltage || lodash_1.default.get(this, ['params', 'voltage'], 0), " V"),
                     };
-                    return [4 /*yield*/, restApi_1.updateStates(this.entityId, {
+                    return [4, (0, restApi_1.updateStates)(this.entityId, {
                             entity_id: this.entityId,
                             state: state || lodash_1.default.get(this, ['params', 'switch']),
                             attributes: attributes,
                         })];
                 case 1:
                     res = _a.sent();
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });

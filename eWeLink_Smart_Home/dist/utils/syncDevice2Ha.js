@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -43,7 +43,7 @@ var getThings_1 = __importDefault(require("./getThings"));
 var initMdns_1 = __importDefault(require("../utils/initMdns"));
 var generateLovelace_1 = __importDefault(require("./generateLovelace"));
 var sleep_1 = __importDefault(require("./sleep"));
-var mdns = initMdns_1.default();
+var mdns = (0, initMdns_1.default)();
 exports.default = (function (_a) {
     var syncLovelace = _a.syncLovelace, sleepTime = _a.sleepTime;
     return __awaiter(void 0, void 0, void 0, function () {
@@ -58,19 +58,19 @@ exports.default = (function (_a) {
                             },
                         ],
                     });
-                    return [4 /*yield*/, getThings_1.default()];
+                    return [4, (0, getThings_1.default)()];
                 case 1:
                     _b.sent();
-                    if (!(sleepTime !== undefined)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, sleep_1.default(sleepTime)];
+                    if (!(sleepTime !== undefined)) return [3, 3];
+                    return [4, (0, sleep_1.default)(sleepTime)];
                 case 2:
                     _b.sent();
                     _b.label = 3;
                 case 3:
                     if (syncLovelace) {
-                        generateLovelace_1.default();
+                        (0, generateLovelace_1.default)();
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });

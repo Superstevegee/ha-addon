@@ -25,7 +25,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -53,28 +53,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var coolkit_api_1 = __importDefault(require("coolkit-api"));
 var dataUtil_1 = require("./dataUtil");
 var getThings_1 = __importDefault(require("./getThings"));
+var logger_1 = require("./logger");
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var loginParams, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                loginParams = dataUtil_1.getDataSync('user.json', ['login']);
-                console.log('Jia ~ file: initCkApi.ts ~ line 9 ~ loginParams', loginParams);
-                if (!loginParams) return [3 /*break*/, 4];
-                return [4 /*yield*/, coolkit_api_1.default.user.login(loginParams)];
+                loginParams = (0, dataUtil_1.getDataSync)('user.json', ['login']);
+                logger_1.logger.info("initCkApi loginParams: ".concat(JSON.stringify(loginParams)));
+                if (!loginParams) return [3, 4];
+                return [4, coolkit_api_1.default.user.login(loginParams)];
             case 1:
                 result = _a.sent();
-                console.log('Jia ~ file: initCkApi.ts ~ line 10 ~ result', result);
-                if (!(result.error === 0)) return [3 /*break*/, 4];
-                console.log('relogin success');
-                return [4 /*yield*/, dataUtil_1.saveData('user.json', JSON.stringify(__assign(__assign({}, result.data), { login: loginParams })))];
+                logger_1.logger.info("initCkApi result: ".concat(JSON.stringify(result)));
+                if (!(result.error === 0)) return [3, 4];
+                logger_1.logger.info('relogin success');
+                return [4, (0, dataUtil_1.saveData)('user.json', JSON.stringify(__assign(__assign({}, result.data), { login: loginParams })))];
             case 2:
                 _a.sent();
-                return [4 /*yield*/, getThings_1.default()];
+                return [4, (0, getThings_1.default)()];
             case 3:
                 _a.sent();
                 _a.label = 4;
-            case 4: return [2 /*return*/];
+            case 4: return [2];
         }
     });
 }); });

@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -60,13 +60,13 @@ var restApi_1 = require("../apis/restApi");
 var EFanPresetModes_1 = __importDefault(require("../ts/enum/EFanPresetModes"));
 var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
-var LanUIID34Controller = /** @class */ (function (_super) {
+var LanUIID34Controller = (function (_super) {
     __extends(LanUIID34Controller, _super);
     function LanUIID34Controller(props) {
         var _this = _super.call(this, props) || this;
         _this.uiid = 34;
         var deviceId = props.deviceId;
-        _this.entityId = "light." + deviceId;
+        _this.entityId = "light.".concat(deviceId);
         return _this;
     }
     return LanUIID34Controller;
@@ -128,8 +128,8 @@ LanUIID34Controller.prototype.toggleLight = function (params) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.toggleLanLightAPI({
+                    if (!(this.devicekey && this.selfApikey)) return [3, 2];
+                    return [4, (0, lanDeviceApi_1.toggleLanLightAPI)({
                             ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
@@ -140,12 +140,12 @@ LanUIID34Controller.prototype.toggleLight = function (params) {
                 case 1:
                     res = _a.sent();
                     if (lodash_1.default.get(res, ['data', 'error']) === 0) {
-                        this.params = mergeDeviceParams_1.default(this.params, { switches: [{ switch: params.light, outlet: 0 }] });
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, { switches: [{ switch: params.light, outlet: 0 }] });
                         this.updateState(this.params.switches);
-                        return [2 /*return*/, 0];
+                        return [2, 0];
                     }
                     _a.label = 2;
-                case 2: return [2 /*return*/, -1];
+                case 2: return [2, -1];
             }
         });
     });
@@ -156,8 +156,8 @@ LanUIID34Controller.prototype.setFan = function (params) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.setFanAPI({
+                    if (!(this.devicekey && this.selfApikey)) return [3, 2];
+                    return [4, (0, lanDeviceApi_1.setFanAPI)({
                             ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
@@ -191,12 +191,12 @@ LanUIID34Controller.prototype.setFan = function (params) {
                         else if (params.speed === 3) {
                             tmp[2].switch = 'on';
                         }
-                        this.params = mergeDeviceParams_1.default(this.params, { switches: tmp });
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, { switches: tmp });
                         this.updateState(this.params.switches);
-                        return [2 /*return*/, 0];
+                        return [2, 0];
                     }
                     _a.label = 2;
-                case 2: return [2 /*return*/, -1];
+                case 2: return [2, -1];
             }
         });
     });
@@ -206,7 +206,7 @@ LanUIID34Controller.prototype.updateState = function (switches) {
         var lightState, fanState, presetMode;
         return __generator(this, function (_a) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             lightState = switches[0].switch;
             fanState = switches[1].switch;
@@ -221,29 +221,29 @@ LanUIID34Controller.prototype.updateState = function (switches) {
                 lightState = 'unavailable';
                 fanState = 'unavailable';
             }
-            restApi_1.updateStates("" + this.entityId, {
-                entity_id: "" + this.entityId,
+            (0, restApi_1.updateStates)("".concat(this.entityId), {
+                entity_id: "".concat(this.entityId),
                 state: lightState,
                 attributes: {
                     restored: false,
                     supported_features: 0,
-                    friendly_name: "" + this.deviceName,
+                    friendly_name: "".concat(this.deviceName),
                     state: lightState,
                 },
             });
-            restApi_1.updateStates("fan." + this.deviceId, {
-                entity_id: "fan." + this.deviceId,
+            (0, restApi_1.updateStates)("fan.".concat(this.deviceId), {
+                entity_id: "fan.".concat(this.deviceId),
                 state: fanState,
                 attributes: {
                     restored: false,
                     supported_features: 0,
-                    friendly_name: "" + this.deviceName,
+                    friendly_name: "".concat(this.deviceName),
                     state: lightState,
                     preset_mode: presetMode,
                     preset_modes: Object.values(EFanPresetModes_1.default),
                 },
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

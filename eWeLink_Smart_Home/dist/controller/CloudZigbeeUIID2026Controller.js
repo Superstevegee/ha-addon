@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -56,68 +56,56 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var restApi_1 = require("../apis/restApi");
 var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
-/**
- *
- *
- * @class CloudZigbeeUIID2026Controller
- * @extends {CloudDeviceController}
- * @description ZigBee移动传感器
- */
-var CloudZigbeeUIID2026Controller = /** @class */ (function (_super) {
+var CloudZigbeeUIID2026Controller = (function (_super) {
     __extends(CloudZigbeeUIID2026Controller, _super);
     function CloudZigbeeUIID2026Controller(props) {
         var _this = _super.call(this, props) || this;
         _this.type = 8;
         _this.uiid = props.extra.uiid;
-        _this.entityId = "binary_sensor." + _this.deviceId;
+        _this.entityId = "binary_sensor.".concat(_this.deviceId);
         _this.params = props.params;
         return _this;
     }
     return CloudZigbeeUIID2026Controller;
 }(CloudDeviceController_1.default));
-/**
- * @description 更新状态到HA
- */
 CloudZigbeeUIID2026Controller.prototype.updateState = function (_a) {
     var motion = _a.motion, battery = _a.battery;
     return __awaiter(this, void 0, void 0, function () {
         var state;
         return __generator(this, function (_b) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             state = motion === 1 ? 'on' : 'off';
             if (!this.online) {
                 state = 'unavailable';
             }
             if (motion !== undefined) {
-                // 更新开关
-                restApi_1.updateStates("" + this.entityId, {
-                    entity_id: "" + this.entityId,
+                (0, restApi_1.updateStates)("".concat(this.entityId), {
+                    entity_id: "".concat(this.entityId),
                     state: state,
                     attributes: {
                         restored: false,
-                        friendly_name: "" + this.deviceName,
+                        friendly_name: "".concat(this.deviceName),
                         device_class: 'motion',
                         state: state,
                     },
                 });
             }
             if (battery !== undefined) {
-                // 更新电量
-                restApi_1.updateStates("sensor." + this.deviceId + "_battery", {
-                    entity_id: "sensor." + this.deviceId + "_battery",
+                (0, restApi_1.updateStates)("sensor.".concat(this.deviceId, "_battery"), {
+                    entity_id: "sensor.".concat(this.deviceId, "_battery"),
                     state: battery,
                     attributes: {
                         restored: false,
-                        friendly_name: this.deviceName + "-Battery",
+                        friendly_name: "".concat(this.deviceName, "-Battery"),
                         device_class: 'battery',
                         unit_of_measurement: '%',
                         state: battery,
                     },
                 });
             }
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

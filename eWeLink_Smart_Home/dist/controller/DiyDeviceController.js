@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -42,7 +42,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = __importDefault(require("axios"));
 var restApi_1 = require("../apis/restApi");
 var dataUtil_1 = require("../utils/dataUtil");
-var DiyDeviceController = /** @class */ (function () {
+var logger_1 = require("../utils/logger");
+var DiyDeviceController = (function () {
     function DiyDeviceController(_a) {
         var deviceId = _a.deviceId, ip = _a.ip, _b = _a.port, port = _b === void 0 ? 8081 : _b, disabled = _a.disabled, txt = _a.txt;
         this.type = 1;
@@ -50,11 +51,10 @@ var DiyDeviceController = /** @class */ (function () {
         this.deviceId = deviceId;
         this.ip = ip;
         this.port = port;
-        this.entityId = "switch." + deviceId;
-        // this.entityId = `switch.${deviceId}`;
+        this.entityId = "switch.".concat(deviceId);
         this.disabled = disabled;
         this.txt = txt;
-        this.deviceName = dataUtil_1.getDataSync('diy.json', [deviceId, 'deviceName']) || "DIY-" + deviceId;
+        this.deviceName = (0, dataUtil_1.getDataSync)('diy.json', [deviceId, 'deviceName']) || "DIY-".concat(deviceId);
     }
     return DiyDeviceController;
 }());
@@ -63,7 +63,7 @@ DiyDeviceController.prototype.setSwitch = function (status) {
         var _this = this;
         return __generator(this, function (_a) {
             axios_1.default
-                .post("http://" + this.ip + ":" + this.port + "/zeroconf/switch", {
+                .post("http://".concat(this.ip, ":").concat(this.port, "/zeroconf/switch"), {
                 sequence: Date.now(),
                 deviceId: this.deviceId,
                 data: {
@@ -71,10 +71,9 @@ DiyDeviceController.prototype.setSwitch = function (status) {
                 },
             })
                 .catch(function (e) {
-                // console.log('控制DIY设备出错，设备id：', this.deviceId);
-                console.log('update DIY device state error, deviceid:', _this.deviceId);
+                logger_1.logger.warn("Update DIY device state error, deviceId: ".concat(_this.deviceId));
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };
@@ -83,9 +82,9 @@ DiyDeviceController.prototype.updateState = function (status) {
         var _this = this;
         return __generator(this, function (_a) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
-            restApi_1.updateStates(this.entityId, {
+            (0, restApi_1.updateStates)(this.entityId, {
                 entity_id: this.entityId,
                 state: status,
                 attributes: {
@@ -95,10 +94,9 @@ DiyDeviceController.prototype.updateState = function (status) {
                     state: status,
                 },
             }).catch(function (e) {
-                // console.log('更新Diy设备到HA出错，设备id：', this.deviceId);
-                console.log('update DIY device state to HA error, deviceid:', _this.deviceId);
+                logger_1.logger.warn("Update DIY device state to HA error, deviceId: ".concat(_this.deviceId));
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

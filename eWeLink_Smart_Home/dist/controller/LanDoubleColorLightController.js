@@ -40,7 +40,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -71,28 +71,27 @@ var restApi_1 = require("../apis/restApi");
 var light_1 = require("../config/light");
 var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
-var LanDoubleColorLightController = /** @class */ (function (_super) {
+var LanDoubleColorLightController = (function (_super) {
     __extends(LanDoubleColorLightController, _super);
     function LanDoubleColorLightController(props) {
         var _this = _super.call(this, props) || this;
         _this.effectList = light_1.doubleColorBulbEffectList;
         var deviceId = props.deviceId;
-        _this.entityId = "light." + deviceId;
+        _this.entityId = "light.".concat(deviceId);
         return _this;
     }
     return LanDoubleColorLightController;
 }(LanDeviceController_1.default));
 LanDoubleColorLightController.prototype.parseHaData2Ck = function (params) {
     var _a;
-    var state = params.state, brightness_pct = params.brightness_pct, effect = params.effect, color_temp = params.color_temp;
+    var state = params.state, brightness_pct = params.brightness_pct, effect = params.effect, color_temp = params.color_temp, color_temp_kelvin = params.color_temp_kelvin;
     var res = {};
     if (state === 'off') {
         return {
             switch: 'off',
         };
     }
-    // 从关闭到打开
-    if (!brightness_pct && !color_temp && !effect) {
+    if (!brightness_pct && !color_temp && !effect && !color_temp_kelvin) {
         var tmp = lodash_1.default.get(this, ['params', 'ltype']);
         return _a = {
                 switch: 'on',
@@ -115,6 +114,13 @@ LanDoubleColorLightController.prototype.parseHaData2Ck = function (params) {
             ct: 255 - color_temp,
         };
     }
+    if (color_temp_kelvin) {
+        res.ltype = 'white';
+        res.white = {
+            br: lodash_1.default.get(this, ['params', 'white', 'br']),
+            ct: Math.round((1657500 - 255 * color_temp_kelvin) / 3800)
+        };
+    }
     if (effect) {
         res = __assign(__assign({}, res), light_1.doubleColorBulbLtypeMap.get(effect));
     }
@@ -126,10 +132,10 @@ LanDoubleColorLightController.prototype.updateLight = function (params) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 5];
+                    if (!(this.devicekey && this.selfApikey)) return [3, 5];
                     res = void 0;
-                    if (!params.ltype) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.updateLanLight({
+                    if (!params.ltype) return [3, 2];
+                    return [4, (0, lanDeviceApi_1.updateLanLight)({
                             ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
@@ -139,8 +145,8 @@ LanDoubleColorLightController.prototype.updateLight = function (params) {
                         })];
                 case 1:
                     res = _a.sent();
-                    return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, lanDeviceApi_1.setSwitch({
+                    return [3, 4];
+                case 2: return [4, (0, lanDeviceApi_1.setSwitch)({
                         ip: this.ip || this.target,
                         port: this.port,
                         deviceid: this.deviceId,
@@ -153,11 +159,11 @@ LanDoubleColorLightController.prototype.updateLight = function (params) {
                     _a.label = 4;
                 case 4:
                     if (lodash_1.default.get(res, ['data', 'error']) === 0) {
-                        this.params = mergeDeviceParams_1.default(this.params, params);
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, params);
                         this.updateState(params);
                     }
                     _a.label = 5;
-                case 5: return [2 /*return*/, -1];
+                case 5: return [2, -1];
             }
         });
     });
@@ -167,7 +173,7 @@ LanDoubleColorLightController.prototype.updateState = function (params) {
         var _a, status, ltype, br, ct, tmp, state;
         return __generator(this, function (_b) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             _a = params.switch, status = _a === void 0 ? 'on' : _a, ltype = params.ltype;
             br = lodash_1.default.get(this, ['params', 'white', 'br']), ct = lodash_1.default.get(this, ['params', 'white', 'ct']);
@@ -180,7 +186,7 @@ LanDoubleColorLightController.prototype.updateState = function (params) {
             if (!this.online) {
                 state = 'unavailable';
             }
-            restApi_1.updateStates(this.entityId, {
+            (0, restApi_1.updateStates)(this.entityId, {
                 entity_id: this.entityId,
                 state: state,
                 attributes: {
@@ -192,12 +198,15 @@ LanDoubleColorLightController.prototype.updateState = function (params) {
                     state: state,
                     min_mireds: 1,
                     max_mireds: 255,
+                    min_color_temp_kelvin: 2700,
+                    max_color_temp_kelvin: 6500,
                     effect: ltype,
                     brightness: (br * 2.55) >> 0,
                     color_temp: 255 - ct,
+                    color_temp_kelvin: Math.round((1657500 - 3800 * ct) / 255),
                 },
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

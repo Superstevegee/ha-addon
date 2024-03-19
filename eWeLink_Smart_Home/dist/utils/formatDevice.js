@@ -32,6 +32,10 @@ var LanPowerDetectionSwitchController_1 = __importDefault(require("../controller
 var CloudDW2WiFiController_1 = __importDefault(require("../controller/CloudDW2WiFiController"));
 var CloudRFBridgeController_1 = __importDefault(require("../controller/CloudRFBridgeController"));
 var LanRFBridgeController_1 = __importDefault(require("../controller/LanRFBridgeController"));
+var CloudZigbeeMultiSwitchController_1 = __importDefault(require("../controller/CloudZigbeeMultiSwitchController"));
+var LanSwitchController_1 = __importDefault(require("../controller/LanSwitchController"));
+var CloudUIID130Controller_1 = __importDefault(require("../controller/CloudUIID130Controller"));
+var CloudUIID182Controller_1 = __importDefault(require("../controller/CloudUIID182Controller"));
 var ghostManufacturer = function (manufacturer) {
     if (manufacturer === void 0) { manufacturer = 'eWeLink'; }
     if (~manufacturer.indexOf('松诺') || ~manufacturer.toLocaleUpperCase().indexOf('SONOFF')) {
@@ -39,9 +43,16 @@ var ghostManufacturer = function (manufacturer) {
     }
     return 'eWeLink';
 };
+var handleLanType = function (uiid) {
+    if (uiid === 181 || uiid === 190) {
+        return 4;
+    }
+    else {
+        return 2;
+    }
+};
 var formatDevice = function (data) {
-    var _a, _b, _c, _d;
-    // index 16->support 8->online 4->cloud 2->lan 1->diy
+    var _a, _b, _c, _d, _e;
     if (data instanceof DiyDeviceController_1.default) {
         return {
             key: data.deviceId,
@@ -61,7 +72,8 @@ var formatDevice = function (data) {
     if (data instanceof LanDeviceController_1.default) {
         var tags = void 0, unit = void 0, rate = void 0;
         var index = 18;
-        if (data instanceof LanMultiChannelSwitchController_1.default) {
+        if (data instanceof LanMultiChannelSwitchController_1.default ||
+            data instanceof LanSwitchController_1.default) {
             tags = data.channelName;
         }
         else if (data instanceof LanRFBridgeController_1.default) {
@@ -86,10 +98,10 @@ var formatDevice = function (data) {
             ip: data.ip,
             uiid: (_b = data.extra) === null || _b === void 0 ? void 0 : _b.uiid,
             port: data.port,
-            type: data.type,
-            manufacturer: ghostManufacturer((_c = data.extra) === null || _c === void 0 ? void 0 : _c.manufacturer),
+            type: handleLanType((_c = data.extra) === null || _c === void 0 ? void 0 : _c.uiid),
+            manufacturer: ghostManufacturer((_d = data.extra) === null || _d === void 0 ? void 0 : _d.manufacturer),
             deviceName: data.deviceName,
-            model: (_d = data.extra) === null || _d === void 0 ? void 0 : _d.model,
+            model: (_e = data.extra) === null || _e === void 0 ? void 0 : _e.model,
             apikey: data.selfApikey,
             params: data.params,
             online: data.online,
@@ -100,9 +112,11 @@ var formatDevice = function (data) {
         };
     }
     if (data instanceof CloudDeviceController_1.default) {
-        var tags = void 0, unit = void 0, rate = void 0, lowVolAlarm = void 0;
+        var tags = void 0, unit = void 0, rate = void 0, lowVolAlarm = void 0, eRate = void 0;
         var index = 20;
-        if (data instanceof CloudMultiChannelSwitchController_1.default) {
+        if (data instanceof CloudMultiChannelSwitchController_1.default ||
+            data instanceof CloudZigbeeMultiSwitchController_1.default ||
+            data instanceof CloudUIID130Controller_1.default) {
             tags = data.channelName;
         }
         else if (data instanceof CloudRFBridgeController_1.default) {
@@ -111,11 +125,16 @@ var formatDevice = function (data) {
         else if (data instanceof CloudTandHModificationController_1.default) {
             unit = data.unit;
         }
-        else if (data instanceof CloudPowerDetectionSwitchController_1.default || data instanceof CloudDualR3Controller_1.default) {
+        else if (data instanceof CloudPowerDetectionSwitchController_1.default ||
+            data instanceof CloudDualR3Controller_1.default ||
+            data instanceof CloudUIID182Controller_1.default) {
             rate = data.rate;
         }
         else if (data instanceof CloudDW2WiFiController_1.default) {
             lowVolAlarm = data.lowVolAlarm;
+        }
+        if (data instanceof CloudUIID182Controller_1.default) {
+            eRate = data.eRate;
         }
         if (data.online) {
             index += 8;
@@ -136,6 +155,7 @@ var formatDevice = function (data) {
             tags: tags,
             unit: unit,
             rate: rate,
+            eRate: eRate,
             lowVolAlarm: lowVolAlarm,
         };
     }
@@ -180,7 +200,7 @@ var getFormattedDeviceList = function () {
         }
         finally { if (e_2) throw e_2.error; }
     }
-    var oldDiyDevices = dataUtil_1.getDataSync('diy.json', []);
+    var oldDiyDevices = (0, dataUtil_1.getDataSync)('diy.json', []);
     for (var key in oldDiyDevices) {
         try {
             if (!Controller_1.default.getDevice(key)) {

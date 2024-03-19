@@ -40,7 +40,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -85,13 +85,14 @@ var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController")
 var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var light_1 = require("../config/light");
-var CloudRGBLightStripController = /** @class */ (function (_super) {
+var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
+var CloudRGBLightStripController = (function (_super) {
     __extends(CloudRGBLightStripController, _super);
     function CloudRGBLightStripController(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 59;
         _this.effectList = light_1.effectList;
-        _this.entityId = "light." + params.deviceId;
+        _this.entityId = "light.".concat(params.deviceId);
         _this.params = params.params;
         _this.mode = _this.params.mode;
         return _this;
@@ -99,7 +100,7 @@ var CloudRGBLightStripController = /** @class */ (function (_super) {
     return CloudRGBLightStripController;
 }(CloudDeviceController_1.default));
 CloudRGBLightStripController.prototype.parseHaData2Ck = function (params) {
-    var state = params.state, effect = params.effect, brightness_pct = params.brightness_pct, rgb_color = params.rgb_color, color_temp = params.color_temp;
+    var state = params.state, effect = params.effect, brightness_pct = params.brightness_pct, rgb_color = params.rgb_color, color_temp = params.color_temp, color_temp_kelvin = params.color_temp_kelvin;
     var res = {
         mode: 1,
     };
@@ -113,9 +114,17 @@ CloudRGBLightStripController.prototype.parseHaData2Ck = function (params) {
         res.colorB = rgb_color[2];
         res.light_type = 1;
     }
+    if (color_temp_kelvin) {
+        res.light_type = 2;
+        var ct = Math.round((923000 - 142 * color_temp_kelvin) / 3800);
+        var _a = __read(light_1.fakeTempList[ct].split(','), 3), r = _a[0], g = _a[1], b = _a[2];
+        res.colorR = +r;
+        res.colorG = +g;
+        res.colorB = +b;
+    }
     if (color_temp) {
         res.light_type = 2;
-        var _a = __read(light_1.fakeTempList[color_temp].split(','), 3), r = _a[0], g = _a[1], b = _a[2];
+        var _b = __read(light_1.fakeTempList[color_temp].split(','), 3), r = _b[0], g = _b[1], b = _b[2];
         res.colorR = +r;
         res.colorG = +g;
         res.colorB = +b;
@@ -132,22 +141,19 @@ CloudRGBLightStripController.prototype.parseCkData2Ha = function (params) {
         effect: this.effectList[1],
     };
     bright && (res.brightness = (bright * 2.55) << 0);
-    // * 彩光
     if (light_type === 1) {
-        if (colorR && colorG && colorB) {
+        if (![colorR, colorG, colorB].includes(undefined)) {
             res.rgb_color = [colorR, colorG, colorB];
         }
     }
-    // * 白光
     if (light_type === 2) {
-        if (colorR && colorG && colorB) {
-            var temp = light_1.fakeTempList.indexOf(colorR + "," + colorG + "," + colorB);
+        if (![colorR, colorG, colorB].includes(undefined)) {
+            var temp = light_1.fakeTempList.indexOf("".concat(colorR, ",").concat(colorG, ",").concat(colorB));
             if (temp !== -1) {
                 res.color_temp = temp;
+                res.color_temp_kelvin = Math.round((923000 - 3800 * temp) / 142);
             }
             else {
-                // todo
-                // ? 找不到对应的值时取临近值
             }
         }
     }
@@ -161,7 +167,7 @@ CloudRGBLightStripController.prototype.updateLight = function (params) {
         var res;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                case 0: return [4, coolkit_ws_1.default.updateThing({
                         ownerApikey: this.apikey,
                         deviceid: this.deviceId,
                         params: params,
@@ -169,35 +175,32 @@ CloudRGBLightStripController.prototype.updateLight = function (params) {
                 case 1:
                     res = _a.sent();
                     if (res.error === 0) {
-                        this.params = __assign(__assign({}, this.params), params);
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, params);
                         this.updateState(this.parseCkData2Ha(params));
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });
 };
-/**
- * @description 更新状态到HA
- */
 CloudRGBLightStripController.prototype.updateState = function (params) {
     return __awaiter(this, void 0, void 0, function () {
         var status, state;
         return __generator(this, function (_a) {
             status = params.state;
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             state = status;
             if (!this.online) {
                 state = 'unavailable';
             }
-            restApi_1.updateStates(this.entityId, {
+            (0, restApi_1.updateStates)(this.entityId, {
                 entity_id: this.entityId,
                 state: state,
-                attributes: __assign(__assign(__assign({ restored: false, supported_features: 4, supported_color_modes: ['color_temp', 'rgb'], effect_list: this.effectList.slice(1), min_mireds: 1, max_mireds: 142, friendly_name: this.deviceName }, this.parseCkData2Ha(this.params)), params), { state: state }),
+                attributes: __assign(__assign(__assign({ restored: false, supported_features: 4, supported_color_modes: ['color_temp', 'rgb'], effect_list: this.effectList.slice(1), min_mireds: 1, max_mireds: 142, min_color_temp_kelvin: 2700, max_color_temp_kelvin: 6500, friendly_name: this.deviceName }, this.parseCkData2Ha(this.params)), params), { state: state }),
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

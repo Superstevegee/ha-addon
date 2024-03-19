@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -60,15 +60,16 @@ var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var channelMap_1 = require("../config/channelMap");
 var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
-var CloudMultiChannelSwitchController = /** @class */ (function (_super) {
+var CloudMultiChannelSwitchController = (function (_super) {
     __extends(CloudMultiChannelSwitchController, _super);
     function CloudMultiChannelSwitchController(props) {
+        var _this = this;
         var _a;
-        var _this = _super.call(this, props) || this;
-        _this.entityId = "switch." + props.deviceId;
+        _this = _super.call(this, props) || this;
+        _this.entityId = "switch.".concat(props.deviceId);
         _this.uiid = props.extra.uiid;
         _this.channelName = (_a = props.tags) === null || _a === void 0 ? void 0 : _a.ck_channel_name;
-        _this.maxChannel = channelMap_1.getMaxChannelByUiid(props.extra.uiid);
+        _this.maxChannel = (0, channelMap_1.getMaxChannelByUiid)(props.extra.uiid);
         _this.params = props.params;
         return _this;
     }
@@ -79,7 +80,7 @@ CloudMultiChannelSwitchController.prototype.updateSwitch = function (switches) {
         var res;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                case 0: return [4, coolkit_ws_1.default.updateThing({
                         ownerApikey: this.apikey,
                         deviceid: this.deviceId,
                         params: {
@@ -90,46 +91,42 @@ CloudMultiChannelSwitchController.prototype.updateSwitch = function (switches) {
                     res = _a.sent();
                     if (res.error === 0) {
                         this.updateState(switches);
-                        this.params = mergeDeviceParams_1.default(this.params, { switches: switches });
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, { switches: switches });
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });
 };
-/**
- * @description 更新状态到HA
- */
 CloudMultiChannelSwitchController.prototype.updateState = function (switches) {
     return __awaiter(this, void 0, void 0, function () {
         var i, _a, outlet, status_1, name_1, state;
         return __generator(this, function (_b) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             for (i = 0; i < this.maxChannel; i++) {
                 _a = switches[i] || {}, outlet = _a.outlet, status_1 = _a.switch;
                 if (!lodash_1.default.isNumber(outlet) || status_1 === undefined) {
-                    // todo
-                    return [2 /*return*/];
+                    return [2];
                 }
                 name_1 = lodash_1.default.get(this, ['channelName', outlet], outlet + 1);
                 state = status_1;
                 if (!this.online) {
                     state = 'unavailable';
                 }
-                restApi_1.updateStates(this.entityId + "_" + (outlet + 1), {
-                    entity_id: this.entityId + "_" + (outlet + 1),
+                (0, restApi_1.updateStates)("".concat(this.entityId, "_").concat(outlet + 1), {
+                    entity_id: "".concat(this.entityId, "_").concat(outlet + 1),
                     state: state,
                     attributes: {
                         restored: false,
                         supported_features: 0,
-                        friendly_name: this.deviceName + "-" + name_1,
+                        friendly_name: "".concat(this.deviceName, "-").concat(name_1),
                         state: state,
                     },
                 });
             }
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

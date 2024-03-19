@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -66,10 +66,14 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -79,14 +83,14 @@ var lodash_1 = __importDefault(require("lodash"));
 var lanDeviceApi_1 = require("../apis/lanDeviceApi");
 var restApi_1 = require("../apis/restApi");
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
-var LanRFBridgeController = /** @class */ (function (_super) {
+var LanRFBridgeController = (function (_super) {
     __extends(LanRFBridgeController, _super);
     function LanRFBridgeController(props) {
         var _this = _super.call(this, props) || this;
         _this.entityMap = new Map();
         _this.rfValMap = new Map();
         var deviceId = props.deviceId;
-        _this.entityId = "binary_sensor." + deviceId;
+        _this.entityId = "binary_sensor.".concat(deviceId);
         return _this;
     }
     return LanRFBridgeController;
@@ -108,8 +112,8 @@ LanRFBridgeController.prototype.transmitRfChl = function (data) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.transmitRfChlAPI({
+                    if (!(this.devicekey && this.selfApikey)) return [3, 2];
+                    return [4, (0, lanDeviceApi_1.transmitRfChlAPI)({
                             ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
@@ -121,10 +125,10 @@ LanRFBridgeController.prototype.transmitRfChl = function (data) {
                     res = _a.sent();
                     if ((res === null || res === void 0 ? void 0 : res.data) && res.data.error === 0 && lodash_1.default.isNumber(data.rfChl)) {
                         this.updateState([data.rfChl], 1000);
-                        return [2 /*return*/, 0];
+                        return [2, 0];
                     }
                     _a.label = 2;
-                case 2: return [2 /*return*/, -1];
+                case 2: return [2, -1];
             }
         });
     });
@@ -139,22 +143,22 @@ LanRFBridgeController.prototype.updateState = function (ids, time) {
             switch (_b.label) {
                 case 0:
                     if (this.disabled || !((_a = this.entityMap) === null || _a === void 0 ? void 0 : _a.size)) {
-                        return [2 /*return*/];
+                        return [2];
                     }
                     state = 'on';
                     if (!ids) {
-                        ids = __spreadArray([], __read(this.entityMap.keys()));
+                        ids = __spreadArray([], __read(this.entityMap.keys()), false);
                         state = 'off';
                     }
                     i = 0;
                     _b.label = 1;
                 case 1:
-                    if (!(i < ids.length)) return [3 /*break*/, 4];
+                    if (!(i < ids.length)) return [3, 4];
                     entity = this.entityMap.get(ids[i]);
-                    if (!entity) return [3 /*break*/, 3];
+                    if (!entity) return [3, 3];
                     entityId = entity.entityId, icon = entity.icon, name_1 = entity.name;
-                    return [4 /*yield*/, restApi_1.updateStates(entityId, {
-                            entity_id: "" + entityId,
+                    return [4, (0, restApi_1.updateStates)(entityId, {
+                            entity_id: "".concat(entityId),
                             state: state,
                             attributes: {
                                 restored: false,
@@ -168,7 +172,7 @@ LanRFBridgeController.prototype.updateState = function (ids, time) {
                     _b.label = 3;
                 case 3:
                     i++;
-                    return [3 /*break*/, 1];
+                    return [3, 1];
                 case 4:
                     if (state === 'on' && ids) {
                         setTimeout(function () {
@@ -176,8 +180,8 @@ LanRFBridgeController.prototype.updateState = function (ids, time) {
                                 var entity = _this.entityMap.get(id);
                                 if (entity) {
                                     var entityId = entity.entityId, icon = entity.icon, name_2 = entity.name;
-                                    restApi_1.updateStates(entityId, {
-                                        entity_id: "" + entityId,
+                                    (0, restApi_1.updateStates)(entityId, {
+                                        entity_id: "".concat(entityId),
                                         state: 'off',
                                         attributes: {
                                             restored: false,
@@ -190,7 +194,7 @@ LanRFBridgeController.prototype.updateState = function (ids, time) {
                             });
                         }, time);
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });

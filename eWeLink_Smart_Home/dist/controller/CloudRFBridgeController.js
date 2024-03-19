@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -66,10 +66,14 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -78,15 +82,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var lodash_1 = __importDefault(require("lodash"));
 var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
 var restApi_1 = require("../apis/restApi");
-var CloudRFBridgeController = /** @class */ (function (_super) {
+var CloudRFBridgeController = (function (_super) {
     __extends(CloudRFBridgeController, _super);
     function CloudRFBridgeController(params) {
+        var _this = this;
         var _a;
-        var _this = _super.call(this, params) || this;
+        _this = _super.call(this, params) || this;
         _this.uiid = 28;
         _this.entityMap = new Map();
         _this.rfValMap = new Map();
-        _this.entityId = "binary_sensor." + params.deviceId;
+        _this.entityId = "binary_sensor.".concat(params.deviceId);
         _this.params = params.params;
         _this.uiid = params.extra.uiid;
         _this.tags = params.tags;
@@ -101,9 +106,9 @@ var CloudRFBridgeController = /** @class */ (function (_super) {
                 var name = _a.name, buttonName = _a.buttonName, remote_type = _a.remote_type;
                 buttonName.forEach(function (item) {
                     var _a = __read(Object.entries(item)[0], 2), key = _a[0], childName = _a[1];
-                    var entityName = name + "-" + childName;
+                    var entityName = "".concat(name, "-").concat(childName);
                     var suffix = _this.rfValMap.get(+key);
-                    var entityId = _this.entityId + "_" + suffix;
+                    var entityId = "".concat(_this.entityId, "_").concat(suffix);
                     if (suffix) {
                         _this.entityMap.set(+key, {
                             entityId: entityId,
@@ -139,9 +144,6 @@ CloudRFBridgeController.prototype.parseCkData2Ha = function (data) {
     }
     return res;
 };
-/**
- * @description 更新状态到HA
- */
 CloudRFBridgeController.prototype.updateState = function (ids) {
     return __awaiter(this, void 0, void 0, function () {
         var state, i, entity, entityId, icon, name_1;
@@ -150,22 +152,22 @@ CloudRFBridgeController.prototype.updateState = function (ids) {
             switch (_a.label) {
                 case 0:
                     if (this.disabled) {
-                        return [2 /*return*/];
+                        return [2];
                     }
                     state = 'on';
                     if (!ids) {
-                        ids = __spreadArray([], __read(this.entityMap.keys()));
+                        ids = __spreadArray([], __read(this.entityMap.keys()), false);
                         state = 'off';
                     }
                     i = 0;
                     _a.label = 1;
                 case 1:
-                    if (!(i < ids.length)) return [3 /*break*/, 4];
+                    if (!(i < ids.length)) return [3, 4];
                     entity = this.entityMap.get(ids[i]);
-                    if (!entity) return [3 /*break*/, 3];
+                    if (!entity) return [3, 3];
                     entityId = entity.entityId, icon = entity.icon, name_1 = entity.name;
-                    return [4 /*yield*/, restApi_1.updateStates(entityId, {
-                            entity_id: "" + entityId,
+                    return [4, (0, restApi_1.updateStates)(entityId, {
+                            entity_id: "".concat(entityId),
                             state: state,
                             attributes: {
                                 restored: false,
@@ -179,7 +181,7 @@ CloudRFBridgeController.prototype.updateState = function (ids) {
                     _a.label = 3;
                 case 3:
                     i++;
-                    return [3 /*break*/, 1];
+                    return [3, 1];
                 case 4:
                     if (state === 'on' && ids) {
                         setTimeout(function () {
@@ -187,8 +189,8 @@ CloudRFBridgeController.prototype.updateState = function (ids) {
                                 var entity = _this.entityMap.get(id);
                                 if (entity) {
                                     var entityId = entity.entityId, icon = entity.icon, name_2 = entity.name;
-                                    restApi_1.updateStates(entityId, {
-                                        entity_id: "" + entityId,
+                                    (0, restApi_1.updateStates)(entityId, {
+                                        entity_id: "".concat(entityId),
                                         state: 'off',
                                         attributes: {
                                             restored: false,
@@ -201,7 +203,7 @@ CloudRFBridgeController.prototype.updateState = function (ids) {
                             });
                         }, 1000);
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });

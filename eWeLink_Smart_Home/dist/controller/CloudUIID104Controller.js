@@ -40,7 +40,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -71,19 +71,13 @@ var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var lodash_1 = __importDefault(require("lodash"));
 var light_1 = require("../config/light");
 var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
-/**
- *
- * @class CloudUIID104Controller
- * @extends {CloudDeviceController}
- * @description RGB五色灯
- */
-var CloudUIID104Controller = /** @class */ (function (_super) {
+var CloudUIID104Controller = (function (_super) {
     __extends(CloudUIID104Controller, _super);
     function CloudUIID104Controller(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 104;
         _this.effectList = light_1.rbgLEDBulbEffectList;
-        _this.entityId = "light." + params.deviceId;
+        _this.entityId = "light.".concat(params.deviceId);
         _this.disabled = params.disabled;
         _this.params = params.params;
         return _this;
@@ -91,16 +85,16 @@ var CloudUIID104Controller = /** @class */ (function (_super) {
     return CloudUIID104Controller;
 }(CloudDeviceController_1.default));
 CloudUIID104Controller.prototype.parseHaData2Ck = function (params) {
-    var _a, _b;
-    var state = params.state, brightness_pct = params.brightness_pct, effect = params.effect, color_temp = params.color_temp, rgb_color = params.rgb_color;
-    var res = {};
+    var _a, _b, _c;
+    var _d;
+    var state = params.state, brightness_pct = params.brightness_pct, brightness = params.brightness, effect = params.effect, color_temp = params.color_temp, rgb_color = params.rgb_color, color_temp_kelvin = params.color_temp_kelvin;
+    var res = { switch: 'on' };
     if (state === 'off') {
         return {
             switch: 'off',
         };
     }
-    // 从关闭到打开
-    if (!brightness_pct && !color_temp && !effect && !rgb_color) {
+    if (!brightness_pct && !brightness && !color_temp && !effect && !rgb_color && !color_temp_kelvin) {
         var tmp = this.params.ltype;
         return _a = {
                 switch: 'on',
@@ -110,23 +104,42 @@ CloudUIID104Controller.prototype.parseHaData2Ck = function (params) {
             _a;
     }
     if (brightness_pct) {
-        var tmp = this.params.ltype;
+        var tmp = ['white', 'color'].includes(effect) ? effect : this.params.ltype;
+        if (tmp !== 'white' && tmp !== 'color') {
+            tmp = 'white';
+        }
         res = __assign(__assign({}, res), (_b = { ltype: tmp }, _b[tmp] = __assign(__assign({}, lodash_1.default.get(this, ['params', tmp], {})), { br: brightness_pct }), _b));
     }
+    if (brightness) {
+        var tmp = ['white', 'color'].includes(effect) ? effect : this.params.ltype;
+        var br = (brightness / 2.55) >> 0 === 0 ? 1 : (brightness / 2.55) >> 0;
+        if (tmp !== 'white' && tmp !== 'color') {
+            tmp = 'white';
+        }
+        res = __assign(__assign({}, res), (_c = { ltype: tmp }, _c[tmp] = __assign(__assign({}, lodash_1.default.get(this, ['params', tmp], {})), { br: br }), _c));
+    }
     if (rgb_color) {
-        var tmp = this.params.ltype;
+        var tmp = 'color';
         res = __assign(__assign({}, res), { ltype: 'color', color: __assign(__assign({}, lodash_1.default.get(this, ['params', tmp], {
                 br: 100,
             })), { r: rgb_color[0], g: rgb_color[1], b: rgb_color[2] }) });
+        brightness && Object.assign((_d = res.color) !== null && _d !== void 0 ? _d : {}, { br: (brightness / 2.55) >> 0 === 0 ? 1 : (brightness / 2.55) >> 0 });
+    }
+    if (color_temp_kelvin) {
+        res.ltype = 'white';
+        res.white = {
+            br: typeof brightness === 'number' ? (brightness / 2.55) >> 0 === 0 ? 1 : (brightness / 2.55) >> 0 : lodash_1.default.get(this, ['params', 'white', 'br']),
+            ct: Math.round((1657500 - 255 * (9200 - color_temp_kelvin)) / 3800),
+        };
     }
     if (color_temp) {
         res.ltype = 'white';
         res.white = {
-            br: lodash_1.default.get(this, ['params', 'white', 'br']),
+            br: typeof brightness === 'number' ? (brightness / 2.55) >> 0 === 0 ? 1 : (brightness / 2.55) >> 0 : lodash_1.default.get(this, ['params', 'white', 'br']),
             ct: 255 - color_temp,
         };
     }
-    if (effect) {
+    if (effect && light_1.rbgLEDBulbLtypeMap.get(effect)) {
         res = __assign(__assign({}, res), light_1.rbgLEDBulbLtypeMap.get(effect));
     }
     return res;
@@ -136,7 +149,7 @@ CloudUIID104Controller.prototype.updateLight = function (params) {
         var res;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                case 0: return [4, coolkit_ws_1.default.updateThing({
                         ownerApikey: this.apikey,
                         deviceid: this.deviceId,
                         params: params,
@@ -144,39 +157,48 @@ CloudUIID104Controller.prototype.updateLight = function (params) {
                 case 1:
                     res = _a.sent();
                     if (res.error === 0) {
-                        this.params = mergeDeviceParams_1.default(this.params, params);
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, params);
                         this.updateState(params);
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });
 };
-/**
- * @description 更新状态到HA
- */
 CloudUIID104Controller.prototype.updateState = function (params) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, status, ltype, br, ct, r, g, b, tmp, state;
-        return __generator(this, function (_b) {
+        var status, ltype, br, ct, r, g, b, curLtype, tmp, tmp, state;
+        return __generator(this, function (_a) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
-            _a = params.switch, status = _a === void 0 ? 'on' : _a, ltype = params.ltype;
-            br = this.params.white.br, ct = this.params.white.ct, r = this.params.color.r, g = this.params.color.g, b = this.params.color.b;
-            tmp = params[ltype];
-            if (tmp) {
+            status = params.switch, ltype = params.ltype;
+            br = this.params.white ? this.params.white.br : 1, ct = this.params.white ? this.params.white.ct : 0, r = this.params.color ? this.params.color.r : 255, g = this.params.color ? this.params.color.g : 0, b = this.params.color ? this.params.color.b : 0;
+            curLtype = ltype || this.params.ltype;
+            if (curLtype === 'white') {
+                tmp = params[curLtype] || this.params[curLtype];
                 tmp.br && (br = tmp.br);
                 tmp.ct && (ct = tmp.ct);
+                r = this.params['color'].r;
+                g = this.params['color'].g;
+                b = this.params['color'].b;
+            }
+            if (curLtype === 'color') {
+                tmp = params[curLtype] || this.params[curLtype];
+                tmp.br && (br = tmp.br);
                 tmp.r && (r = tmp.r);
                 tmp.g && (g = tmp.g);
                 tmp.b && (b = tmp.b);
+                ct = this.params['white'].ct;
             }
             state = status;
+            if (!state) {
+                state = this.params.switch;
+            }
             if (!this.online) {
                 state = 'unavailable';
             }
-            restApi_1.updateStates(this.entityId, {
+            (0, restApi_1.updateStates)(this.entityId, {
                 entity_id: this.entityId,
                 state: state,
                 attributes: {
@@ -184,6 +206,7 @@ CloudUIID104Controller.prototype.updateState = function (params) {
                     supported_features: 4,
                     friendly_name: this.deviceName,
                     supported_color_modes: ['color_temp', 'rgb'],
+                    color_mode: ltype === 'white' ? 'color_temp' : ltype === 'color' ? 'rgb' : '',
                     effect_list: this.effectList,
                     state: state,
                     min_mireds: 1,
@@ -191,10 +214,13 @@ CloudUIID104Controller.prototype.updateState = function (params) {
                     effect: ltype,
                     brightness: (br * 2.55) >> 0,
                     color_temp: 255 - ct,
+                    min_color_temp_kelvin: 2700,
+                    max_color_temp_kelvin: 6500,
+                    color_temp_kelvin: 2700 + (6500 - Math.round((1657500 - 3800 * ct) / 255)),
                     rgb_color: [r, g, b],
                 },
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

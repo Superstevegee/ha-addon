@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -60,12 +60,12 @@ var restApi_1 = require("../apis/restApi");
 var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
 var EFanPresetModes_1 = __importDefault(require("../ts/enum/EFanPresetModes"));
-var CloudUIID34Controller = /** @class */ (function (_super) {
+var CloudUIID34Controller = (function (_super) {
     __extends(CloudUIID34Controller, _super);
     function CloudUIID34Controller(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 34;
-        _this.entityId = "light." + params.deviceId;
+        _this.entityId = "light.".concat(params.deviceId);
         _this.uiid = params.extra.uiid;
         _this.params = params.params;
         return _this;
@@ -74,7 +74,6 @@ var CloudUIID34Controller = /** @class */ (function (_super) {
 }(CloudDeviceController_1.default));
 CloudUIID34Controller.prototype.parseHaData2Ck = function (_a) {
     var entity_id = _a.entity_id, preset_mode = _a.preset_mode, state = _a.state;
-    // 控制灯
     var res = lodash_1.default.cloneDeep(this.params.switches);
     if (entity_id === this.entityId) {
         res[0].switch = state;
@@ -106,7 +105,7 @@ CloudUIID34Controller.prototype.updateSwitch = function (switches) {
         var res;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                case 0: return [4, coolkit_ws_1.default.updateThing({
                         ownerApikey: this.apikey,
                         deviceid: this.deviceId,
                         params: {
@@ -117,22 +116,19 @@ CloudUIID34Controller.prototype.updateSwitch = function (switches) {
                     res = _a.sent();
                     if (res.error === 0) {
                         this.updateState(switches);
-                        this.params = mergeDeviceParams_1.default(this.params, { switches: switches });
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, { switches: switches });
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });
 };
-/**
- * @description 更新状态到HA
- */
 CloudUIID34Controller.prototype.updateState = function (switches) {
     return __awaiter(this, void 0, void 0, function () {
         var lightState, fanState, presetMode;
         return __generator(this, function (_a) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             lightState = switches[0].switch;
             fanState = switches[1].switch;
@@ -147,29 +143,29 @@ CloudUIID34Controller.prototype.updateState = function (switches) {
                 lightState = 'unavailable';
                 fanState = 'unavailable';
             }
-            restApi_1.updateStates("" + this.entityId, {
-                entity_id: "" + this.entityId,
+            (0, restApi_1.updateStates)("".concat(this.entityId), {
+                entity_id: "".concat(this.entityId),
                 state: lightState,
                 attributes: {
                     restored: false,
                     supported_features: 0,
-                    friendly_name: "" + this.deviceName,
+                    friendly_name: "".concat(this.deviceName),
                     state: lightState,
                 },
             });
-            restApi_1.updateStates("fan." + this.deviceId, {
-                entity_id: "fan." + this.deviceId,
+            (0, restApi_1.updateStates)("fan.".concat(this.deviceId), {
+                entity_id: "fan.".concat(this.deviceId),
                 state: fanState,
                 attributes: {
                     restored: false,
                     supported_features: 0,
-                    friendly_name: "" + this.deviceName,
+                    friendly_name: "".concat(this.deviceName),
                     state: lightState,
                     preset_mode: presetMode,
                     preset_modes: Object.values(EFanPresetModes_1.default),
                 },
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -43,43 +43,43 @@ exports.setFanAPI = exports.toggleLanLightAPI = exports.transmitRfChlAPI = expor
 var axios_1 = __importDefault(require("axios"));
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var lanControlAuthenticationUtils_1 = __importDefault(require("../utils/lanControlAuthenticationUtils"));
+var logger_1 = require("../utils/logger");
 var setSwitch = function (params) { return __awaiter(void 0, void 0, void 0, function () {
     var ip, port, deviceid, devicekey, data, selfApikey, iv, reqData, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 ip = params.ip, port = params.port, deviceid = params.deviceid, devicekey = params.devicekey, data = params.data, selfApikey = params.selfApikey;
-                iv = ("abcdef" + Date.now() + "abcdef").slice(0, 16);
+                iv = "abcdef".concat(Date.now(), "abcdef").slice(0, 16);
                 reqData = {
                     iv: lanControlAuthenticationUtils_1.default.encryptionBase64(iv),
                     deviceid: deviceid,
                     selfApikey: selfApikey,
                     encrypt: true,
-                    sequence: "" + Date.now(),
+                    sequence: "".concat(Date.now()),
                     data: lanControlAuthenticationUtils_1.default.encryptionData({
                         iv: iv,
                         data: data,
                         key: devicekey,
                     }),
                 };
-                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/switch", reqData);
+                res = axios_1.default.post("http://".concat(ip, ":").concat(port, "/zeroconf/switch"), reqData);
                 res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                // console.log('控制局域网单通道设备出错', reqData);
-                                console.log('update LAN single switch devices error', reqData);
-                                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                                logger_1.logger.warn("Update LAN single channel switch device error, ".concat(JSON.stringify(reqData)));
+                                return [4, coolkit_ws_1.default.updateThing({
                                         deviceid: deviceid,
                                         ownerApikey: selfApikey,
                                         params: JSON.parse(data),
                                     })];
-                            case 1: return [2 /*return*/, _a.sent()];
+                            case 1: return [2, _a.sent()];
                         }
                     });
                 }); });
-                return [4 /*yield*/, res];
-            case 1: return [2 /*return*/, _a.sent()];
+                return [4, res];
+            case 1: return [2, _a.sent()];
         }
     });
 }); };
@@ -90,253 +90,228 @@ var setSwitches = function (params) { return __awaiter(void 0, void 0, void 0, f
         switch (_a.label) {
             case 0:
                 ip = params.ip, port = params.port, deviceid = params.deviceid, devicekey = params.devicekey, data = params.data, selfApikey = params.selfApikey;
-                iv = ("abcdef" + Date.now() + "abcdef").slice(0, 16);
+                iv = "abcdef".concat(Date.now(), "abcdef").slice(0, 16);
                 reqData = {
                     iv: lanControlAuthenticationUtils_1.default.encryptionBase64(iv),
                     deviceid: deviceid,
                     selfApikey: selfApikey,
                     encrypt: true,
-                    sequence: "" + Date.now(),
+                    sequence: "".concat(Date.now()),
                     data: lanControlAuthenticationUtils_1.default.encryptionData({
                         iv: iv,
                         data: data,
                         key: devicekey,
                     }),
                 };
-                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/switches", reqData);
+                res = axios_1.default.post("http://".concat(ip, ":").concat(port, "/zeroconf/switches"), reqData);
                 res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                // console.log('控制局域网多通道设备出错', reqData);
-                                console.log('update LAN multi-switch devices error', reqData);
-                                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                                logger_1.logger.warn("Update LAN multi-switch device error, ".concat(JSON.stringify(reqData)));
+                                return [4, coolkit_ws_1.default.updateThing({
                                         deviceid: deviceid,
                                         ownerApikey: selfApikey,
                                         params: JSON.parse(data),
                                     })];
-                            case 1: return [2 /*return*/, _a.sent()];
+                            case 1: return [2, _a.sent()];
                         }
                     });
                 }); });
-                return [4 /*yield*/, res];
-            case 1: return [2 /*return*/, _a.sent()];
+                return [4, res];
+            case 1: return [2, _a.sent()];
         }
     });
 }); };
 exports.setSwitches = setSwitches;
-/**
- *
- * @description RF-Bridge 发送通道值
- */
 var transmitRfChlAPI = function (params) { return __awaiter(void 0, void 0, void 0, function () {
     var ip, port, deviceid, devicekey, data, selfApikey, iv, reqData, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 ip = params.ip, port = params.port, deviceid = params.deviceid, devicekey = params.devicekey, data = params.data, selfApikey = params.selfApikey;
-                iv = ("abcdef" + Date.now() + "abcdef").slice(0, 16);
+                iv = "abcdef".concat(Date.now(), "abcdef").slice(0, 16);
                 reqData = {
                     iv: lanControlAuthenticationUtils_1.default.encryptionBase64(iv),
                     deviceid: deviceid,
                     selfApikey: selfApikey,
                     encrypt: true,
-                    sequence: "" + Date.now(),
+                    sequence: "".concat(Date.now()),
                     data: lanControlAuthenticationUtils_1.default.encryptionData({
                         iv: iv,
                         data: data,
                         key: devicekey,
                     }),
                 };
-                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/transmit", reqData);
+                res = axios_1.default.post("http://".concat(ip, ":").concat(port, "/zeroconf/transmit"), reqData);
                 res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                // console.log('控制局域网RF-Bridge出错', reqData);
-                                console.log('update LAN RF-Bridge error', reqData);
-                                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                                logger_1.logger.warn("Update LAN RF-Bridge error, ".concat(JSON.stringify(reqData)));
+                                return [4, coolkit_ws_1.default.updateThing({
                                         deviceid: deviceid,
                                         ownerApikey: selfApikey,
                                         params: JSON.parse(data),
                                     })];
-                            case 1: return [2 /*return*/, _a.sent()];
+                            case 1: return [2, _a.sent()];
                         }
                     });
                 }); });
-                return [4 /*yield*/, res];
-            case 1: return [2 /*return*/, _a.sent()];
+                return [4, res];
+            case 1: return [2, _a.sent()];
         }
     });
 }); };
 exports.transmitRfChlAPI = transmitRfChlAPI;
-/**
- *
- * @deprecated 局域网设备好像不支持该接口
- */
 var getLanDeviceParams = function (params) { return __awaiter(void 0, void 0, void 0, function () {
     var ip, port, deviceid, devicekey, selfApikey, iv, reqData, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 ip = params.ip, port = params.port, deviceid = params.deviceid, devicekey = params.devicekey, selfApikey = params.selfApikey;
-                iv = ("abcdef" + Date.now() + "abcdef").slice(0, 16);
+                iv = "abcdef".concat(Date.now(), "abcdef").slice(0, 16);
                 reqData = {
                     iv: lanControlAuthenticationUtils_1.default.encryptionBase64(iv),
                     deviceid: deviceid,
                     selfApikey: selfApikey,
                     encrypt: true,
-                    sequence: "" + Date.now(),
+                    sequence: "".concat(Date.now()),
                     data: lanControlAuthenticationUtils_1.default.encryptionData({
                         iv: iv,
                         data: JSON.stringify({}),
                         key: devicekey,
                     }),
                 };
-                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/info", reqData);
+                res = axios_1.default.post("http://".concat(ip, ":").concat(port, "/zeroconf/info"), reqData);
                 res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
-                        console.log('get lan device params failed:', deviceid);
-                        return [2 /*return*/];
+                        logger_1.logger.warn("Get LAN device params failed, deviceid ".concat(deviceid));
+                        return [2];
                     });
                 }); });
-                return [4 /*yield*/, res];
-            case 1: return [2 /*return*/, _a.sent()];
+                return [4, res];
+            case 1: return [2, _a.sent()];
         }
     });
 }); };
 exports.getLanDeviceParams = getLanDeviceParams;
-/**
- * @description 调整灯的模式及亮度、色温
- * @description 目前仅针对UIID 103
- */
 var updateLanLight = function (params) { return __awaiter(void 0, void 0, void 0, function () {
     var ip, port, deviceid, devicekey, data, selfApikey, iv, reqData, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 ip = params.ip, port = params.port, deviceid = params.deviceid, devicekey = params.devicekey, data = params.data, selfApikey = params.selfApikey;
-                iv = ("abcdef" + Date.now() + "abcdef").slice(0, 16);
+                iv = "abcdef".concat(Date.now(), "abcdef").slice(0, 16);
                 reqData = {
                     iv: lanControlAuthenticationUtils_1.default.encryptionBase64(iv),
                     deviceid: deviceid,
                     selfApikey: selfApikey,
                     encrypt: true,
-                    sequence: "" + Date.now(),
+                    sequence: "".concat(Date.now()),
                     data: lanControlAuthenticationUtils_1.default.encryptionData({
                         iv: iv,
                         data: data,
                         key: devicekey,
                     }),
                 };
-                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/dimmable", reqData);
+                res = axios_1.default.post("http://".concat(ip, ":").concat(port, "/zeroconf/dimmable"), reqData);
                 res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                // console.log('控制局域网灯设备出错', reqData);
-                                console.log('update LAN lamp device error', reqData);
-                                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                                logger_1.logger.warn("Update LAN Lamp device error, ".concat(JSON.stringify(reqData)));
+                                return [4, coolkit_ws_1.default.updateThing({
                                         deviceid: deviceid,
                                         ownerApikey: selfApikey,
                                         params: JSON.parse(data),
                                     })];
-                            case 1: return [2 /*return*/, _a.sent()];
+                            case 1: return [2, _a.sent()];
                         }
                     });
                 }); });
-                return [4 /*yield*/, res];
-            case 1: return [2 /*return*/, _a.sent()];
+                return [4, res];
+            case 1: return [2, _a.sent()];
         }
     });
 }); };
 exports.updateLanLight = updateLanLight;
-/**
- * @description 开灯
- * @description 目前仅针对UIID 34 风扇灯
- */
 var toggleLanLightAPI = function (params) { return __awaiter(void 0, void 0, void 0, function () {
     var ip, port, deviceid, devicekey, data, selfApikey, iv, reqData, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 ip = params.ip, port = params.port, deviceid = params.deviceid, devicekey = params.devicekey, data = params.data, selfApikey = params.selfApikey;
-                iv = ("abcdef" + Date.now() + "abcdef").slice(0, 16);
+                iv = "abcdef".concat(Date.now(), "abcdef").slice(0, 16);
                 reqData = {
                     iv: lanControlAuthenticationUtils_1.default.encryptionBase64(iv),
                     deviceid: deviceid,
                     selfApikey: selfApikey,
                     encrypt: true,
-                    sequence: "" + Date.now(),
+                    sequence: "".concat(Date.now()),
                     data: lanControlAuthenticationUtils_1.default.encryptionData({
                         iv: iv,
                         data: data,
                         key: devicekey,
                     }),
                 };
-                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/light", reqData);
+                res = axios_1.default.post("http://".concat(ip, ":").concat(port, "/zeroconf/light"), reqData);
                 res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                // console.log('控制局域网灯设备出错', reqData);
-                                console.log('update LAN lamp device error', reqData);
-                                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                                logger_1.logger.warn("Update LAN Lamp device error, ".concat(JSON.stringify(reqData)));
+                                return [4, coolkit_ws_1.default.updateThing({
                                         deviceid: deviceid,
                                         ownerApikey: selfApikey,
                                         params: JSON.parse(data),
                                     })];
-                            case 1: return [2 /*return*/, _a.sent()];
+                            case 1: return [2, _a.sent()];
                         }
                     });
                 }); });
-                return [4 /*yield*/, res];
-            case 1: return [2 /*return*/, _a.sent()];
+                return [4, res];
+            case 1: return [2, _a.sent()];
         }
     });
 }); };
 exports.toggleLanLightAPI = toggleLanLightAPI;
-/**
- * @description 调节风扇档位
- * @description 目前仅针对UIID 34 风扇灯
- */
 var setFanAPI = function (params) { return __awaiter(void 0, void 0, void 0, function () {
     var ip, port, deviceid, devicekey, data, selfApikey, iv, reqData, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 ip = params.ip, port = params.port, deviceid = params.deviceid, devicekey = params.devicekey, data = params.data, selfApikey = params.selfApikey;
-                iv = ("abcdef" + Date.now() + "abcdef").slice(0, 16);
+                iv = "abcdef".concat(Date.now(), "abcdef").slice(0, 16);
                 reqData = {
                     iv: lanControlAuthenticationUtils_1.default.encryptionBase64(iv),
                     deviceid: deviceid,
                     selfApikey: selfApikey,
                     encrypt: true,
-                    sequence: "" + Date.now(),
+                    sequence: "".concat(Date.now()),
                     data: lanControlAuthenticationUtils_1.default.encryptionData({
                         iv: iv,
                         data: data,
                         key: devicekey,
                     }),
                 };
-                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/fan", reqData);
+                res = axios_1.default.post("http://".concat(ip, ":").concat(port, "/zeroconf/fan"), reqData);
                 res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                // console.log('控制局域网灯设备出错', reqData);
-                                console.log('update LAN lamp device error', reqData);
-                                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                                logger_1.logger.warn("Update LAN Lamp device error, ".concat(JSON.stringify(reqData)));
+                                return [4, coolkit_ws_1.default.updateThing({
                                         deviceid: deviceid,
                                         ownerApikey: selfApikey,
                                         params: JSON.parse(data),
                                     })];
-                            case 1: return [2 /*return*/, _a.sent()];
+                            case 1: return [2, _a.sent()];
                         }
                     });
                 }); });
-                return [4 /*yield*/, res];
-            case 1: return [2 /*return*/, _a.sent()];
+                return [4, res];
+            case 1: return [2, _a.sent()];
         }
     });
 }); };

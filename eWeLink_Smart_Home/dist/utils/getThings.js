@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -90,36 +90,47 @@ var uiid_1 = require("../config/uiid");
 var CloudUIID44Controller_1 = __importDefault(require("../controller/CloudUIID44Controller"));
 var CloudUIID34Controller_1 = __importDefault(require("../controller/CloudUIID34Controller"));
 var LanUIID34Controller_1 = __importDefault(require("../controller/LanUIID34Controller"));
-// 获取设备并同步到HA
+var CloudNSPanelController_1 = __importDefault(require("../controller/CloudNSPanelController"));
+var logger_1 = require("./logger");
+var CloudUIID181Controller_1 = __importDefault(require("../controller/CloudUIID181Controller"));
+var CloudUIID190Controller_1 = __importDefault(require("../controller/CloudUIID190Controller"));
+var CloudZigbeeDoubleColorBulbController_1 = __importDefault(require("../controller/CloudZigbeeDoubleColorBulbController"));
+var CloudZigbeeFiveColorBulbController_1 = __importDefault(require("../controller/CloudZigbeeFiveColorBulbController"));
+var CloudZigbeeMultiSwitchController_1 = __importDefault(require("../controller/CloudZigbeeMultiSwitchController"));
+var CloudUIID137Controller_1 = __importDefault(require("../controller/CloudUIID137Controller"));
+var CloudUIID173Controller_1 = __importDefault(require("../controller/CloudUIID173Controller"));
+var CloudUIID182Controller_1 = __importDefault(require("../controller/CloudUIID182Controller"));
+var CloudUIID130Controller_1 = __importDefault(require("../controller/CloudUIID130Controller"));
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var userData, lang, loginParams, _a, error, data, thingList, _loop_1, i;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var _b, _c;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
             case 0:
-                userData = dataUtil_1.getDataSync('user.json', []) || {};
+                userData = (0, dataUtil_1.getDataSync)('user.json', []) || {};
                 lang = userData.lang === 'cn' ? 'cn' : 'en';
                 loginParams = userData.login;
                 if (!loginParams) {
-                    return [2 /*return*/, -1];
+                    return [2, -1];
                 }
-                return [4 /*yield*/, coolkit_api_1.default.device.getThingList({
+                return [4, coolkit_api_1.default.device.getThingList({
                         lang: lang,
+                        num: 0
                     })];
             case 1:
-                _a = _b.sent(), error = _a.error, data = _a.data;
+                _a = _d.sent(), error = _a.error, data = _a.data;
                 if (error === 0) {
                     thingList = data.thingList;
-                    console.log('Jia ~ file: getThings.ts ~ line 25 ~ thingList', JSON.stringify(thingList, null, 2));
+                    logger_1.logger.verbose("getThing: thingList: ".concat(JSON.stringify(thingList)));
                     _loop_1 = function (i) {
                         var item = thingList[i];
                         var deviceIndex = item.index;
                         if (item.itemType === 1 || item.itemType === 2) {
-                            var _c = item.itemData, extra = _c.extra, deviceid = _c.deviceid, name_1 = _c.name, params = _c.params, devicekey = _c.devicekey, apikey = _c.apikey, tags = _c.tags;
+                            var _e = item.itemData, extra = _e.extra, deviceid = _e.deviceid, name_1 = _e.name, params = _e.params, devicekey = _e.devicekey, apikey = _e.apikey, tags = _e.tags;
                             var old_1 = Controller_1.default.getDevice(deviceid);
                             if (old_1 instanceof DiyDeviceController_1.default) {
                                 return "continue";
                             }
-                            // 如果设备已经存在并且是Lan设备就添加该设备的deviceKey
                             if (old_1 instanceof LanDeviceController_1.default && !uiid_1.unsupportedLanModeUiidSet.has(extra.uiid) && !uiid_1.unsupportedLanModeModelSet.has(extra.model)) {
                                 old_1.devicekey = devicekey;
                                 old_1.selfApikey = apikey;
@@ -132,10 +143,11 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                     if (decryptData) {
                                         old_1.updateState(decryptData.switch);
                                     }
+                                    ((_c = (_b = item.itemData) === null || _b === void 0 ? void 0 : _b.tags) === null || _c === void 0 ? void 0 : _c.ck_channel_name) && (old_1.channelName = item.itemData.tags.ck_channel_name);
                                 }
                                 if (old_1 instanceof LanMultiChannelSwitchController_1.default) {
                                     old_1.channelName = tags === null || tags === void 0 ? void 0 : tags.ck_channel_name;
-                                    old_1.maxChannel = channelMap_1.getMaxChannelByUiid(extra.uiid);
+                                    old_1.maxChannel = (0, channelMap_1.getMaxChannelByUiid)(extra.uiid);
                                     var decryptData = old_1.parseEncryptedData();
                                     if (decryptData) {
                                         old_1.updateState(decryptData.switches);
@@ -186,9 +198,9 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                             var name = _a.name, buttonName = _a.buttonName, remote_type = _a.remote_type;
                                             buttonName.forEach(function (item) {
                                                 var _a = __read(Object.entries(item)[0], 2), key = _a[0], childName = _a[1];
-                                                var entityName = name + "-" + childName;
+                                                var entityName = "".concat(name, "-").concat(childName);
                                                 var suffix = old_1.rfValMap.get(+key);
-                                                var entityId = old_1.entityId + "_" + suffix;
+                                                var entityId = "".concat(old_1.entityId, "_").concat(suffix);
                                                 if (suffix) {
                                                     old_1.entityMap.set(+key, {
                                                         entityId: entityId,
@@ -203,7 +215,6 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                 }
                                 return "continue";
                             }
-                            // 添加为Cloud设备
                             var device = Controller_1.default.setDevice({
                                 id: deviceid,
                                 type: 12,
@@ -237,7 +248,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                         current: current,
                                     });
                             }
-                            if (device instanceof CloudMultiChannelSwitchController_1.default) {
+                            if (device instanceof CloudMultiChannelSwitchController_1.default || device instanceof CloudZigbeeMultiSwitchController_1.default) {
                                 !device.disabled && device.updateState(params.switches);
                             }
                             if (device instanceof CloudRGBLightStripController_1.default) {
@@ -282,14 +293,31 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                             if (device instanceof CloudUIID34Controller_1.default) {
                                 !device.disabled && device.updateState(params.switches);
                             }
+                            if (device instanceof CloudNSPanelController_1.default) {
+                            }
+                            if (device instanceof CloudUIID181Controller_1.default) {
+                                !device.disabled && device.updateState(params.switch);
+                            }
+                            if (device instanceof CloudUIID190Controller_1.default) {
+                                !device.disabled && device.updateState(params.switches);
+                            }
+                            if (device instanceof CloudZigbeeDoubleColorBulbController_1.default || device instanceof CloudZigbeeFiveColorBulbController_1.default) {
+                                !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof CloudUIID137Controller_1.default || device instanceof CloudUIID173Controller_1.default) {
+                                !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof CloudUIID182Controller_1.default || device instanceof CloudUIID130Controller_1.default) {
+                                !device.disabled && device.updateState(params.switches);
+                            }
                         }
                     };
                     for (i = 0; i < thingList.length; i++) {
                         _loop_1(i);
                     }
-                    return [2 /*return*/, 0];
+                    return [2, 0];
                 }
-                return [2 /*return*/, -1];
+                return [2, -1];
         }
     });
 }); });

@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -33,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -66,6 +70,7 @@ var user_1 = __importDefault(require("./route/user"));
 var devices_1 = __importDefault(require("./route/devices"));
 var language_1 = __importDefault(require("./route/language"));
 var stream_1 = __importDefault(require("./route/stream"));
+var ha_devices_1 = __importDefault(require("./route/ha-devices"));
 var util_1 = __importDefault(require("./route/util"));
 var initMdns_1 = __importDefault(require("./utils/initMdns"));
 var initCkWs_1 = __importDefault(require("./utils/initCkWs"));
@@ -76,7 +81,11 @@ var config_1 = require("./config/config");
 var redirectToAuth_1 = __importDefault(require("./middleware/redirectToAuth"));
 var AuthClass_1 = __importDefault(require("./class/AuthClass"));
 var eventBus_1 = __importDefault(require("./utils/eventBus"));
+var init_1 = require("./lib-ha/init");
+var process_1 = __importDefault(require("process"));
+var logger_1 = require("./utils/logger");
 coolkit_api_1.default.init({
+    useTestEnv: process_1.default.env.CK_API_ENV === 'test',
     appId: app_1.appId,
     appSecret: app_1.appSecret,
 });
@@ -85,46 +94,50 @@ coolkit_api_1.default.init({
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                initMdns_1.default(); // 扫描局域网设备
-                return [4 /*yield*/, AuthClass_1.default.init()];
+                (0, initMdns_1.default)();
+                return [4, AuthClass_1.default.init()];
             case 1:
                 res = _a.sent();
-                if (!AuthClass_1.default.curAuth) return [3 /*break*/, 2];
+                if (!AuthClass_1.default.curAuth) return [3, 2];
                 eventBus_1.default.emit('init-ha-socket');
-                return [3 /*break*/, 4];
-            case 2: return [4 /*yield*/, initHaSocket_1.default()];
+                return [3, 4];
+            case 2: return [4, (0, initHaSocket_1.default)()];
             case 3:
-                _a.sent(); // 跟HA建立socket连接
+                _a.sent();
                 _a.label = 4;
-            case 4: return [4 /*yield*/, initCkApi_1.default()];
+            case 4: return [4, (0, initCkApi_1.default)()];
             case 5:
-                _a.sent(); // 初始化v2接口并保持登录
-                return [4 /*yield*/, initCkWs_1.default()];
+                _a.sent();
+                return [4, (0, initCkWs_1.default)()];
             case 6:
-                _a.sent(); // 跟易微联Socket建立连接
-                return [2 /*return*/];
+                _a.sent();
+                return [4, (0, init_1.init)()];
+            case 7:
+                _a.sent();
+                return [2];
         }
     });
 }); })();
-var app = express_1.default();
+var app = (0, express_1.default)();
 var port = 3000;
 var apiPrefix = '/api';
 if (config_1.debugMode) {
-    app.use(cors_1.default());
+    app.use((0, cors_1.default)());
 }
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
-app.use(apiPrefix + "/user", user_1.default);
+app.use("".concat(apiPrefix, "/user"), user_1.default);
 app.use('/', express_1.default.static(path.join(__dirname, '/pages')));
 app.use(redirectToAuth_1.default);
-app.use(apiPrefix + "/language", language_1.default);
-app.use(apiPrefix + "/devices", devices_1.default);
-app.use(apiPrefix + "/stream", stream_1.default);
-app.use(apiPrefix + "/util", util_1.default);
+app.use("".concat(apiPrefix, "/language"), language_1.default);
+app.use("".concat(apiPrefix, "/devices"), devices_1.default);
+app.use("".concat(apiPrefix, "/stream"), stream_1.default);
+app.use("".concat(apiPrefix, "/util"), util_1.default);
+app.use("".concat(apiPrefix, "/ha-devices"), ha_devices_1.default);
 app.use('/', function (req, res) {
     res.type('.html');
     res.sendFile(path.join(__dirname, '/pages/index.html'));
 });
 app.listen(port, function () {
-    console.log("server is running at " + port);
+    logger_1.logger.info("server is running at ".concat(port));
 });

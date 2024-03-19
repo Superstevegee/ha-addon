@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -41,12 +41,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCoreInfoAPI = void 0;
 var axios_1 = __importDefault(require("axios"));
+var logger_1 = require("../utils/logger");
 var SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
 var supervisorRequest = axios_1.default.create({
     baseURL: 'http://supervisor',
     headers: {
         'Content-Type': 'application/json',
-        'X-Supervisor-Token': "Bearer " + SUPERVISOR_TOKEN,
+        'X-Supervisor-Token': "Bearer ".concat(SUPERVISOR_TOKEN),
     },
 });
 var getCoreInfoAPI = function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -57,10 +58,10 @@ var getCoreInfoAPI = function () { return __awaiter(void 0, void 0, void 0, func
             url: '/core/info',
         });
         res.catch(function (e) {
-            console.log(e);
+            logger_1.logger.warn("Get HA core info error: ".concat(e));
             return null;
         });
-        return [2 /*return*/, res];
+        return [2, res];
     });
 }); };
 exports.getCoreInfoAPI = getCoreInfoAPI;

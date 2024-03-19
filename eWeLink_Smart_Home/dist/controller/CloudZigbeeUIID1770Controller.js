@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -56,48 +56,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var restApi_1 = require("../apis/restApi");
 var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
-/**
- *
- * @class CloudZigbeeUIID1770Controller
- * @extends {CloudDeviceController}
- * @description ZigBee温湿度传感器
- */
-var CloudZigbeeUIID1770Controller = /** @class */ (function (_super) {
+var CloudZigbeeUIID1770Controller = (function (_super) {
     __extends(CloudZigbeeUIID1770Controller, _super);
     function CloudZigbeeUIID1770Controller(props) {
         var _this = _super.call(this, props) || this;
         _this.type = 8;
         _this.uiid = props.extra.uiid;
-        _this.entityId = "sensor." + _this.deviceId;
+        _this.entityId = "sensor.".concat(_this.deviceId);
         _this.params = props.params;
         return _this;
     }
     return CloudZigbeeUIID1770Controller;
 }(CloudDeviceController_1.default));
-/**
- * @description 更新状态到HA
- */
 CloudZigbeeUIID1770Controller.prototype.updateState = function (_a) {
     var temperature = _a.temperature, humidity = _a.humidity, battery = _a.battery;
     return __awaiter(this, void 0, void 0, function () {
         var t, h;
         return __generator(this, function (_b) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
-            t = "" + +(temperature || 0) / 100, h = "" + +(humidity || 0) / 100;
+            t = "".concat(+(temperature || 0) / 100), h = "".concat(+(humidity || 0) / 100);
             if (!this.online) {
                 t = 'unavailable';
                 h = 'unavailable';
             }
             if (humidity !== undefined) {
-                // 更新湿度
-                restApi_1.updateStates(this.entityId + "_humidity", {
-                    entity_id: this.entityId + "_humidity",
+                (0, restApi_1.updateStates)("".concat(this.entityId, "_humidity"), {
+                    entity_id: "".concat(this.entityId, "_humidity"),
                     state: h,
                     attributes: {
                         restored: false,
-                        friendly_name: this.deviceName + "-Humidity",
+                        friendly_name: "".concat(this.deviceName, "-Humidity"),
                         unit_of_measurement: '%',
                         device_class: 'humidity',
                         state: h,
@@ -105,13 +95,12 @@ CloudZigbeeUIID1770Controller.prototype.updateState = function (_a) {
                 });
             }
             if (temperature !== undefined) {
-                // 更新温度
-                restApi_1.updateStates(this.entityId + "_temperature", {
-                    entity_id: this.entityId + "_temperature",
+                (0, restApi_1.updateStates)("".concat(this.entityId, "_temperature"), {
+                    entity_id: "".concat(this.entityId, "_temperature"),
                     state: t,
                     attributes: {
                         restored: false,
-                        friendly_name: this.deviceName + "-Temperature",
+                        friendly_name: "".concat(this.deviceName, "-Temperature"),
                         unit_of_measurement: '°C',
                         device_class: 'temperature',
                         state: t,
@@ -119,20 +108,19 @@ CloudZigbeeUIID1770Controller.prototype.updateState = function (_a) {
                 });
             }
             if (battery !== undefined) {
-                // 更新电量
-                restApi_1.updateStates(this.entityId + "_battery", {
-                    entity_id: this.entityId + "_battery",
+                (0, restApi_1.updateStates)("".concat(this.entityId, "_battery"), {
+                    entity_id: "".concat(this.entityId, "_battery"),
                     state: battery,
                     attributes: {
                         restored: false,
-                        friendly_name: this.deviceName + "-Battery",
+                        friendly_name: "".concat(this.deviceName, "-Battery"),
                         device_class: 'battery',
                         unit_of_measurement: '%',
                         state: battery,
                     },
                 });
             }
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -59,12 +59,13 @@ var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var lodash_1 = __importDefault(require("lodash"));
-var CloudCoverController = /** @class */ (function (_super) {
+var logger_1 = require("../utils/logger");
+var CloudCoverController = (function (_super) {
     __extends(CloudCoverController, _super);
     function CloudCoverController(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 11;
-        _this.entityId = "cover." + params.deviceId;
+        _this.entityId = "cover.".concat(params.deviceId);
         _this.params = params.params;
         return _this;
     }
@@ -82,8 +83,8 @@ CloudCoverController.prototype.setCover = function (params) {
                             setclose: 100 - params.setclose,
                         };
                     }
-                    console.log('Jia ~ file: CloudCoverController.ts ~ line 21 ~ params', params);
-                    return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                    logger_1.logger.info("CloudCoverController params: ".concat(JSON.stringify(params)));
+                    return [4, coolkit_ws_1.default.updateThing({
                             ownerApikey: this.apikey,
                             deviceid: this.deviceId,
                             params: reqParams,
@@ -92,29 +93,26 @@ CloudCoverController.prototype.setCover = function (params) {
                     res = _a.sent();
                     if (res.error === 0) {
                         this.updateState(params);
-                        this.params = mergeDeviceParams_1.default(this.params, params);
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, params);
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });
 };
-/**
- * @description 更新状态到HA
- */
 CloudCoverController.prototype.updateState = function (_a) {
     var _b = _a.switch, status = _b === void 0 ? 'on' : _b, setclose = _a.setclose;
     return __awaiter(this, void 0, void 0, function () {
         var state;
         return __generator(this, function (_c) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             state = status;
             if (!this.online) {
                 state = 'unavailable';
             }
-            restApi_1.updateStates(this.entityId, {
+            (0, restApi_1.updateStates)(this.entityId, {
                 entity_id: this.entityId,
                 state: state,
                 attributes: {
@@ -125,7 +123,7 @@ CloudCoverController.prototype.updateState = function (_a) {
                     state: state,
                 },
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

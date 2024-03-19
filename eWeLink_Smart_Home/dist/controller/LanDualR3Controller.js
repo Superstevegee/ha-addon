@@ -29,7 +29,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -59,14 +59,14 @@ var restApi_1 = require("../apis/restApi");
 var dataUtil_1 = require("../utils/dataUtil");
 var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
-var LanDualR3Controller = /** @class */ (function (_super) {
+var LanDualR3Controller = (function (_super) {
     __extends(LanDualR3Controller, _super);
     function LanDualR3Controller(props) {
         var _this = _super.call(this, props) || this;
         _this.maxChannel = 2;
         var deviceId = props.deviceId;
-        _this.entityId = "switch." + deviceId;
-        _this.rate = +dataUtil_1.getDataSync('rate.json', [_this.deviceId]) || 0;
+        _this.entityId = "switch.".concat(deviceId);
+        _this.rate = +(0, dataUtil_1.getDataSync)('rate.json', [_this.deviceId]) || 0;
         return _this;
     }
     return LanDualR3Controller;
@@ -77,8 +77,8 @@ LanDualR3Controller.prototype.setSwitch = function (switches) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.setSwitches({
+                    if (!(this.devicekey && this.selfApikey)) return [3, 2];
+                    return [4, (0, lanDeviceApi_1.setSwitches)({
                             ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
@@ -92,11 +92,11 @@ LanDualR3Controller.prototype.setSwitch = function (switches) {
                     res = _a.sent();
                     if (res && res.data && res.data.error === 0) {
                         this.updateState(switches);
-                        this.params = mergeDeviceParams_1.default(this.params, { switches: switches });
-                        return [2 /*return*/, 0];
+                        this.params = (0, mergeDeviceParams_1.default)(this.params, { switches: switches });
+                        return [2, 0];
                     }
                     _a.label = 2;
-                case 2: return [2 /*return*/, -1];
+                case 2: return [2, -1];
             }
         });
     });
@@ -106,7 +106,7 @@ LanDualR3Controller.prototype.updateState = function (switches) {
         var _this = this;
         return __generator(this, function (_a) {
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             switches &&
                 switches.forEach(function (_a) {
@@ -116,18 +116,18 @@ LanDualR3Controller.prototype.updateState = function (switches) {
                     if (!_this.online) {
                         state = 'unavailable';
                     }
-                    restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
-                        entity_id: _this.entityId + "_" + (outlet + 1),
+                    (0, restApi_1.updateStates)("".concat(_this.entityId, "_").concat(outlet + 1), {
+                        entity_id: "".concat(_this.entityId, "_").concat(outlet + 1),
                         state: state,
                         attributes: {
                             restored: false,
                             supported_features: 0,
-                            friendly_name: _this.deviceName + "-" + name,
+                            friendly_name: "".concat(_this.deviceName, "-").concat(name),
                             state: state,
                         },
                     });
                 });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };

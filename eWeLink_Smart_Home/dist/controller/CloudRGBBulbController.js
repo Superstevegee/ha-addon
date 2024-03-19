@@ -40,7 +40,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -69,13 +69,14 @@ var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController")
 var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var light_1 = require("../config/light");
-var CloudRGBBulbController = /** @class */ (function (_super) {
+var logger_1 = require("../utils/logger");
+var CloudRGBBulbController = (function (_super) {
     __extends(CloudRGBBulbController, _super);
     function CloudRGBBulbController(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 22;
         _this.effectList = light_1.rgbBulbEffectList;
-        _this.entityId = "light." + params.deviceId;
+        _this.entityId = "light.".concat(params.deviceId);
         _this.params = params.params;
         return _this;
     }
@@ -83,12 +84,12 @@ var CloudRGBBulbController = /** @class */ (function (_super) {
 }(CloudDeviceController_1.default));
 CloudRGBBulbController.prototype.parseHaData2Ck = function (params) {
     var rgbww_color = params.rgbww_color, brightness_pct = params.brightness_pct, effect = params.effect, state = params.state;
-    console.log('Jia ~ file: CloudRGBBulbController.ts ~ line 32 ~ state', state);
+    logger_1.logger.info("CloudRGBBulbController state: ".concat(state));
     var res = {
         state: state,
     };
     if (rgbww_color) {
-        res = __assign(__assign({}, res), { channel0: "" + rgbww_color[3], channel1: "" + rgbww_color[4], channel2: "" + rgbww_color[0], channel3: "" + rgbww_color[1], channel4: "" + rgbww_color[2], zyx_mode: 1 });
+        res = __assign(__assign({}, res), { channel0: "".concat(rgbww_color[3]), channel1: "".concat(rgbww_color[4]), channel2: "".concat(rgbww_color[0]), channel3: "".concat(rgbww_color[1]), channel4: "".concat(rgbww_color[2]), zyx_mode: 1 });
         if (rgbww_color[0] !== 0 || rgbww_color[1] !== 0 || rgbww_color[2] !== 0) {
             res = __assign(__assign({}, res), { channel0: '0', channel1: '0', zyx_mode: 2 });
         }
@@ -121,9 +122,9 @@ CloudRGBBulbController.prototype.updateLight = function (params) {
             switch (_a.label) {
                 case 0:
                     if (this.disabled) {
-                        return [2 /*return*/];
+                        return [2];
                     }
-                    return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                    return [4, coolkit_ws_1.default.updateThing({
                             ownerApikey: this.apikey,
                             deviceid: this.deviceId,
                             params: params,
@@ -134,32 +135,29 @@ CloudRGBBulbController.prototype.updateLight = function (params) {
                         this.params = __assign(__assign({}, this.params), params);
                         this.updateState(this.parseCkData2Ha(params));
                     }
-                    return [2 /*return*/];
+                    return [2];
             }
         });
     });
 };
-/**
- * @description 更新状态到HA
- */
 CloudRGBBulbController.prototype.updateState = function (params) {
     return __awaiter(this, void 0, void 0, function () {
         var status, state;
         return __generator(this, function (_a) {
             status = params.state;
             if (this.disabled) {
-                return [2 /*return*/];
+                return [2];
             }
             state = status;
             if (!this.online) {
                 state = 'unavailable';
             }
-            restApi_1.updateStates(this.entityId, {
+            (0, restApi_1.updateStates)(this.entityId, {
                 entity_id: this.entityId,
                 state: state,
                 attributes: __assign(__assign(__assign({ restored: false, supported_features: 4, friendly_name: this.deviceName, supported_color_modes: ['rgbww'], effect_list: this.effectList.slice(3) }, this.parseCkData2Ha(this.params)), params), { state: state }),
             });
-            return [2 /*return*/];
+            return [2];
         });
     });
 };
